@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart } from 'lucide-react';
+import { Eye, Heart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import type { ProductWithRelations } from '@/lib/types';
 import { MotionDiv } from '@/components/motion-div';
 import { useMotionValue, useSpring, useTransform } from 'framer-motion';
 import React from 'react';
+import { QuickViewModal } from './quick-view-modal';
 
 const variants = {
   hidden: { opacity: 0, y: 20 },
@@ -71,15 +72,24 @@ export const ProductCard = ({ product }: { product: ProductWithRelations }) => {
                 {product.on_sale && <Badge variant="destructive">Sale</Badge>}
                 {product.featured && <Badge variant="secondary" className='text-accent-foreground bg-accent/80'>Hot</Badge>}
               </div>
-              <Button variant="secondary" size="icon" className="absolute top-2 right-2 h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                <Heart className="w-4 h-4" />
-              </Button>
+              <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full">
+                  <Heart className="w-4 h-4" />
+                </Button>
+                <QuickViewModal product={product}>
+                  <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full">
+                      <Eye className="w-4 h-4" />
+                  </Button>
+                </QuickViewModal>
+              </div>
             </div>
             <div className="p-4 flex-grow flex flex-col justify-between">
-              <h3 className="font-headline font-medium text-lg leading-tight truncate">
-                <Link href={`/products/${product.slug}`}>{product.name}</Link>
-              </h3>
-              <p className="text-primary font-semibold mt-1">TTD ${product.price_ttd.toFixed(2)}</p>
+              <div>
+                <h3 className="font-headline font-medium text-lg leading-tight truncate">
+                  <Link href={`/products/${product.slug}`}>{product.name}</Link>
+                </h3>
+                <p className="text-primary font-semibold mt-1">TTD ${product.price_ttd.toFixed(2)}</p>
+              </div>
             </div>
           </CardContent>
         </Card>

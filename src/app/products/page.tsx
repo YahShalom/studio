@@ -27,11 +27,18 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ProductGrid } from '@/components/product-grid';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { SlidersHorizontal } from 'lucide-react';
 
 function Filters({
   categories,
+  className,
+  onFilterChange,
 }: {
   categories: Category[];
+  className?: string;
+  onFilterChange?: () => void;
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -46,6 +53,7 @@ function Filters({
     }
     newParams.delete('page');
     router.push(`/products?${newParams.toString()}`);
+    onFilterChange?.();
   };
 
   const handleCheckboxChange = (name: 'on_sale' | 'is_new') => {
@@ -57,33 +65,11 @@ function Filters({
     }
     newParams.delete('page');
     router.push(`/products?${newParams.toString()}`);
-  };
-  
-  const handleSortChange = (value: string) => {
-    const newParams = new URLSearchParams(searchParams.toString());
-    newParams.set('sort', value);
-    newParams.delete('page');
-    router.push(`/products?${newParams.toString()}`);
+    onFilterChange?.();
   };
 
   return (
-    <>
-      <div className="flex justify-between items-center mb-6">
-        <p className="text-sm text-muted-foreground">
-          Filtering and sorting products
-        </p>
-        <Select onValueChange={handleSortChange} defaultValue={searchParams.get('sort') || 'newest'}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Sort by" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest">Newest</SelectItem>
-            <SelectItem value="price-asc">Price: Low to High</SelectItem>
-            <SelectItem value="price-desc">Price: High to Low</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="sticky top-24">
+      <div className={className}>
         <h2 className="text-xl font-headline font-semibold mb-4">Filters</h2>
         <Accordion
           type="multiple"
@@ -139,16 +125,11 @@ function Filters({
           </AccordionItem>
         </Accordion>
       </div>
-    </>
   );
 }
 
 const FilterSkeleton = () => (
     <div className="w-full">
-        <div className="flex justify-between items-center mb-6">
-            <Skeleton className="h-5 w-40" />
-            <Skeleton className="h-10 w-[180px]" />
-        </div>
         <Skeleton className="h-8 w-24 mb-4" />
         <div className="space-y-4">
             <Skeleton className="h-12 w-full" />
@@ -169,10 +150,36 @@ const ProductGridSkeleton = () => (
     </div>
   );
 
+function SortSelect() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+
+    const handleSortChange = (value: string) => {
+        const newParams = new URLSearchParams(searchParams.toString());
+        newParams.set('sort', value);
+        newParams.delete('page');
+        router.push(`/products?${newParams.toString()}`);
+    };
+
+    return (
+        <Select onValueChange={handleSortChange} defaultValue={searchParams.get('sort') || 'newest'}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">Newest</SelectItem>
+            <SelectItem value="price-asc">Price: Low to High</SelectItem>
+            <SelectItem value="price-desc">Price: High to Low</SelectItem>
+          </SelectContent>
+        </Select>
+    );
+}
+
 export default function ProductsPage() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -232,17 +239,45 @@ export default function ProductsPage() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <aside className="md:col-span-1">
+          <aside className="md:col-span-1 hidden md:block">
             {loading ? <FilterSkeleton /> : <Suspense fallback={<FilterSkeleton />}><Filters categories={categories} /></Suspense>}
           </aside>
 
           <div className="md:col-span-3">
+             <div className="hidden md:flex justify-end items-center mb-6">
+                <Suspense fallback={<Skeleton className="h-10 w-[180px]" />}>
+                    <SortSelect />
+                </Suspense>
+             </div>
              <Suspense fallback={<ProductGridSkeleton />}>
                 <ProductGrid />
              </Suspense>
           </div>
         </div>
       </main>
+
+       {/* Mobile Sticky Filter Bar */}
+       <div className="md:hidden sticky bottom-0 left-0 right-0 z-30 bg-background/90 backdrop-blur-sm border-t p-2">
+          <div className="container mx-auto flex justify-between items-center gap-2">
+            <Sheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="flex-1">
+                  <SlidersHorizontal className="mr-2 h-4 w-4" />
+                  Filter
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px]">
+                <div className="p-4">
+                  {loading ? <FilterSkeleton /> : <Suspense fallback={<FilterSkeleton />}><Filters categories={categories} onFilterChange={() => setIsFilterSheetOpen(false)} /></Suspense>}
+                </div>
+              </SheetContent>
+            </Sheet>
+             <Suspense fallback={<Skeleton className="h-10 w-[160px]" />}>
+                <SortSelect />
+            </Suspense>
+          </div>
+        </div>
+
       <PublicFooter settings={finalSettings} />
     </div>
   );
