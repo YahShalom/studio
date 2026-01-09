@@ -1,3 +1,4 @@
+
 import { createClient } from '@/lib/supabase/server';
 import { SiteSettings } from '@/lib/types';
 import PublicHeader from '@/components/layout/public-header';
