@@ -1,3 +1,46 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-image",
+      "description": "Main hero image for the landing page",
+      "imageUrl": "https://images.unsplash.com/photo-1578632292335-df3abbb0d586?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxmYXNoaW9uJTIwbW9kZWx8ZW58MHx8fHwxNzY3ODQ4MDk3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fashion model"
+    },
+    {
+      "id": "product-placeholder",
+      "description": "Default placeholder for product images",
+      "imageUrl": "https://images.unsplash.com/photo-1763771444851-4fa902534f04?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxmYXNoaW9uJTIwcHJvZHVjdHxlbnwwfHx8fDE3Njc4NzI3Nzh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fashion product"
+    },
+    {
+      "id": "social-1",
+      "description": "Social grid image 1",
+      "imageUrl": "https://images.unsplash.com/photo-1692466961215-388485ffd571?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmYXNoaW9uJTIwbGlmZXN0eWxlfGVufDB8fHx8MTc2Nzg1NjU4NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fashion lifestyle"
+    },
+    {
+      "id": "social-2",
+      "description": "Social grid image 2",
+      "imageUrl": "https://images.unsplash.com/photo-1670607231621-c00fd76d2387?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxoZWVscyUyMHNob2VzfGVufDB8fHx8MTc2NzkyMzQxOHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "heels shoes"
+    },
+    {
+      "id": "social-3",
+      "description": "Social grid image 3",
+      "imageUrl": "https://images.unsplash.com/photo-1575295912464-fcfd1186d11d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxoYW5kYmFnJTIwYWNjZXNzb3J5fGVufDB8fHx8MTc2Nzg1NjI2MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "handbag accessory"
+    },
+    {
+      "id": "social-4",
+      "description": "Social grid image 4",
+      "imageUrl": "https://images.unsplash.com/photo-1744789759290-1ca5fc539bc0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzYW5kYWxzJTIwc3VtbWVyfGVufDB8fHx8MTc2NzkyMzQxOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sandals summer"
+    },
+    {
+      "id": "social-5",
+      "description": "Social grid image 5",
+      "imageUrl": "https://images.unsplash.com/photo-1636705941762-ae56d531a7d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzbmVha2VycyUyMHN0eWxlfGVufDB8fHx8MTc2NzkyMzQxOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sneakers style"
+    }
+  ]
 }
