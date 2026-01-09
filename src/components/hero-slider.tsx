@@ -40,15 +40,17 @@ const textVariants = {
 
 const BackgroundImage = ({ imageUrl, imageHint, isPriority, y }: { imageUrl: string; imageHint: string; isPriority: boolean; y: any }) => (
     <motion.div style={{ y }} className="h-full w-full">
-        <Image
-        src={imageUrl}
-        alt={imageHint}
-        fill
-        className="object-cover"
-        priority={isPriority}
-        data-ai-hint={imageHint}
-        sizes="100vw"
-        />
+        {imageUrl && (
+            <Image
+            src={imageUrl}
+            alt={imageHint}
+            fill
+            className="object-cover"
+            priority={isPriority}
+            data-ai-hint={imageHint}
+            sizes="100vw"
+            />
+        )}
     </motion.div>
 );
 
@@ -58,7 +60,7 @@ const SlideContent = ({ slide, page, direction }: { slide: HeroSlide, page: numb
 
     const images = (Array.isArray(slide.imageUrl) && slide.imageUrl.length > 0)
         ? slide.imageUrl
-        : typeof slide.imageUrl === 'string'
+        : (typeof slide.imageUrl === 'string' && slide.imageUrl)
         ? [slide.imageUrl]
         : [fallbackImage.imageUrl];
 
@@ -83,6 +85,8 @@ const SlideContent = ({ slide, page, direction }: { slide: HeroSlide, page: numb
     
     const y = useSpring(useTransform(scrollY, [0, 500], [0, -100]), { stiffness: 100, damping: 30, restDelta: 0.001 });
 
+    const currentImageUrl = images[imageIndex] || fallbackImage.imageUrl;
+
     return (
         <motion.div
             key={page}
@@ -103,7 +107,7 @@ const SlideContent = ({ slide, page, direction }: { slide: HeroSlide, page: numb
                     transition={{ duration: 1, ease: 'easeInOut' }}
                     className="absolute inset-0"
                 >
-                    <BackgroundImage imageUrl={images[imageIndex]} imageHint={slide.imageHint} isPriority={page === 0} y={y} />
+                    <BackgroundImage imageUrl={currentImageUrl} imageHint={slide.imageHint} isPriority={page === 0} y={y} />
                 </motion.div>
             </AnimatePresence>
 
