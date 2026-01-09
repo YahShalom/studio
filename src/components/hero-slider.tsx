@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { heroSliderConfig } from '@/lib/site-config';
 import type { SiteSettings, HeroSlide } from '@/lib/types';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const slideVariants = {
   enter: (direction: number) => ({
@@ -37,6 +38,146 @@ const textVariants = {
   }),
 };
 
+const BackgroundImage = ({ imageUrl, imageHint, isPriority, y }: { imageUrl: string; imageHint: string; isPriority: boolean; y: any }) => (
+    <motion.div style={{ y }} className="h-full w-full">
+        <Image
+        src={imageUrl}
+        alt={imageHint}
+        fill
+        className="object-cover"
+        priority={isPriority}
+        data-ai-hint={imageHint}
+        sizes="100vw"
+        />
+    </motion.div>
+);
+
+const SlideContent = ({ slide, page, direction }: { slide: HeroSlide, page: number, direction: number }) => {
+    const [imageIndex, setImageIndex] = useState(0);
+    const fallbackImage = PlaceHolderImages.find(p => p.id === 'hero-image') || { imageUrl: "https://picsum.photos/seed/hero/1920/1080", imageHint: "fashion background" };
+
+    const images = (Array.isArray(slide.imageUrl) && slide.imageUrl.length > 0)
+        ? slide.imageUrl
+        : typeof slide.imageUrl === 'string'
+        ? [slide.imageUrl]
+        : [fallbackImage.imageUrl];
+
+    useEffect(() => {
+        if (images.length <= 1) return;
+        const timer = setInterval(() => {
+            setImageIndex(prev => (prev + 1) % images.length);
+        }, heroSliderConfig.rotateInterval / 1.5);
+        return () => clearInterval(timer);
+    }, [images.length]);
+    
+    // Parallax scroll effect
+    const scrollY = useMotionValue(0);
+    useEffect(() => {
+        const handleScroll = () => scrollY.set(window.scrollY);
+        const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        if (!mediaQuery.matches) {
+            window.addEventListener('scroll', handleScroll);
+        }
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [scrollY]);
+    
+    const y = useSpring(useTransform(scrollY, [0, 500], [0, -100]), { stiffness: 100, damping: 30, restDelta: 0.001 });
+
+    return (
+        <motion.div
+            key={page}
+            className="absolute inset-0"
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ x: { type: 'spring', stiffness: 300, damping: 30 }, opacity: { duration: 0.5 } }}
+        >
+            <AnimatePresence initial={false} mode="wait">
+                <motion.div
+                    key={`${page}-${imageIndex}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1, ease: 'easeInOut' }}
+                    className="absolute inset-0"
+                >
+                    <BackgroundImage imageUrl={images[imageIndex]} imageHint={slide.imageHint} isPriority={page === 0} y={y} />
+                </motion.div>
+            </AnimatePresence>
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent z-10" />
+
+            <div className="relative z-20 container mx-auto px-4 text-center flex flex-col items-center justify-center h-full">
+                 <motion.p
+                    key={`${page}-category`}
+                    custom={0}
+                    initial="hidden"
+                    animate="visible"
+                    variants={textVariants}
+                    className="text-sm md:text-base font-semibold uppercase tracking-widest text-primary mb-2"
+                >
+                    Shop: {slide.categoryName}
+                </motion.p>
+                <motion.h1
+                    key={`${page}-title`}
+                    custom={1}
+                    initial="hidden"
+                    animate="visible"
+                    variants={textVariants}
+                    className="text-4xl md:text-6xl font-extrabold font-headline"
+                    style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.7)' }}
+                >
+                    {slide.title}
+                </motion.h1>
+                <motion.p
+                    key={`${page}-subtitle`}
+                    custom={2}
+                    initial="hidden"
+                    animate="visible"
+                    variants={textVariants}
+                    className="mt-4 text-lg md:text-xl max-w-2xl mx-auto"
+                    style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.7)' }}
+                >
+                    {slide.subtitle}
+                </motion.p>
+                <motion.div
+                    key={`${page}-ctas`}
+                    custom={3}
+                    initial="hidden"
+                    animate="visible"
+                    variants={textVariants}
+                    className="mt-8 flex flex-wrap justify-center gap-4"
+                >
+                    <Button asChild size="lg" className="font-bold">
+                        <Link href={slide.primaryCta.href}>
+                        {slide.primaryCta.label}
+                        </Link>
+                    </Button>
+                    <Button asChild size="lg" variant="secondary" className="font-bold">
+                        <Link href={slide.secondaryCta.href}>
+                        {slide.secondaryCta.label}
+                        </Link>
+                    </Button>
+                </motion.div>
+                <motion.div
+                    key={`${page}-subtext`}
+                    custom={4}
+                    initial="hidden"
+                    animate="visible"
+                    variants={textVariants}
+                    className="mt-6 text-xs text-white/70 space-x-4"
+                >
+                    <span>2 locations in San Fernando</span>
+                    <span>&bull;</span>
+                    <span>Fast replies on WhatsApp</span>
+                </motion.div>
+            </div>
+        </motion.div>
+    );
+};
+
 export default function HeroSlider({ settings }: { settings: SiteSettings }) {
   const [[page, direction], setPage] = useState([0, 0]);
   const [isHovered, setIsHovered] = useState(false);
@@ -45,7 +186,7 @@ export default function HeroSlider({ settings }: { settings: SiteSettings }) {
   const currentSlide = heroSliderConfig.slides[slideIndex];
 
   const paginate = useCallback((newDirection: number) => {
-    setPage(([prevPage, _]) => [prevPage + newDirection, newDirection]);
+    setPage(([prevPage, _]) => [(prevPage + newDirection + heroSliderConfig.slides.length) % heroSliderConfig.slides.length, newDirection]);
   }, []);
 
   useEffect(() => {
@@ -56,17 +197,6 @@ export default function HeroSlider({ settings }: { settings: SiteSettings }) {
     return () => clearInterval(interval);
   }, [isHovered, paginate]);
 
-  // Parallax scroll effect
-  const scrollY = useMotionValue(0);
-  useEffect(() => {
-    const handleScroll = () => scrollY.set(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [scrollY]);
-
-  const y = useTransform(scrollY, [0, 500], [0, -100]);
-  const springY = useSpring(y, { stiffness: 100, damping: 30, restDelta: 0.001 });
-
   return (
     <section 
       className="relative h-[65vh] md:h-[75vh] w-full text-white flex items-center overflow-hidden"
@@ -74,94 +204,8 @@ export default function HeroSlider({ settings }: { settings: SiteSettings }) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <AnimatePresence initial={false} custom={direction}>
-        <motion.div
-          key={page}
-          className="absolute inset-0"
-          custom={direction}
-          variants={slideVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{
-            x: { type: 'spring', stiffness: 300, damping: 30 },
-            opacity: { duration: 0.5 },
-          }}
-        >
-          <motion.div style={{ y: springY }} className="h-full w-full">
-            <Image
-              src={currentSlide.imageUrl}
-              alt={currentSlide.title}
-              fill
-              className="object-cover"
-              priority={page === 0}
-              data-ai-hint={currentSlide.imageHint}
-              sizes="100vw"
-            />
-          </motion.div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent z-10" />
-        </motion.div>
+        <SlideContent slide={currentSlide} page={page} direction={direction} />
       </AnimatePresence>
-
-      <div className="relative z-20 container mx-auto px-4 text-center">
-        <motion.p
-            custom={0}
-            initial="hidden"
-            animate="visible"
-            variants={textVariants}
-            className="text-sm md:text-base font-semibold uppercase tracking-widest text-primary mb-2"
-        >
-          Shop: {currentSlide.categoryName}
-        </motion.p>
-        <motion.h1 
-            custom={1}
-            initial="hidden"
-            animate="visible"
-            variants={textVariants}
-            className="text-4xl md:text-6xl font-extrabold font-headline"
-            style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.7)' }}
-        >
-          {currentSlide.title}
-        </motion.h1>
-        <motion.p 
-            custom={2}
-            initial="hidden"
-            animate="visible"
-            variants={textVariants}
-            className="mt-4 text-lg md:text-xl max-w-2xl mx-auto"
-            style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.7)' }}
-        >
-          {currentSlide.subtitle}
-        </motion.p>
-        <motion.div 
-            custom={3}
-            initial="hidden"
-            animate="visible"
-            variants={textVariants}
-            className="mt-8 flex flex-wrap justify-center gap-4"
-        >
-          <Button asChild size="lg" className="font-bold">
-            <Link href={currentSlide.primaryCta.href}>
-              {currentSlide.primaryCta.label}
-            </Link>
-          </Button>
-          <Button asChild size="lg" variant="secondary" className="font-bold">
-            <Link href={currentSlide.secondaryCta.href}>
-              {currentSlide.secondaryCta.label}
-            </Link>
-          </Button>
-        </motion.div>
-        <motion.div 
-            custom={4}
-            initial="hidden"
-            animate="visible"
-            variants={textVariants}
-            className="mt-6 text-xs text-white/70 space-x-4"
-        >
-            <span>2 locations in San Fernando</span>
-            <span>&bull;</span>
-            <span>Fast replies on WhatsApp</span>
-        </motion.div>
-      </div>
       
       {/* Navigation Arrows */}
       <div className="absolute z-30 top-1/2 -translate-y-1/2 left-4">
@@ -185,6 +229,7 @@ export default function HeroSlider({ settings }: { settings: SiteSettings }) {
               "h-2 w-2 rounded-full transition-colors",
               i === slideIndex ? 'bg-white' : 'bg-white/50 hover:bg-white/75'
             )}
+            aria-label={`Go to slide ${i + 1}`}
           />
         ))}
       </div>

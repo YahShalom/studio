@@ -366,7 +366,7 @@ export type HeroSlide = {
   title: string;
   subtitle: string;
   categoryName: string;
-  imageUrl: string;
+  imageUrl: string | string[];
   imageHint: string;
   primaryCta: HeroCTA;
   secondaryCta: HeroCTA;
