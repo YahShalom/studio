@@ -30,27 +30,8 @@ const categoryChips = [
   { name: 'Sneakers', href: '/products?category=sneakers' },
   { name: 'Bags', href: '/products?category=bags' },
   { name: 'Accessories', href: '/products?category=accessories' },
-  { name: 'New Arrivals', href: '/products?sort=newest' },
+  { name: 'New Arrivals', href: '/products?is_new=true' },
   { name: 'Sale', href: '/products?on_sale=true' },
-];
-
-const trustPoints = [
-  {
-    title: 'Two Convenient Locations',
-    description: 'Find us at High Street and Carlton Centre in San Fernando.',
-  },
-  {
-    title: 'Authentic & Trendy Styles',
-    description: 'We curate the latest styles to keep you ahead of the trend.',
-  },
-  {
-    title: 'Youth-Focused Fashion',
-    description: 'Styles chosen by and for the fashion-forward youth.',
-  },
-  {
-    title: 'Affordable Prices',
-    description: 'Look your best without breaking the bank. Quality fashion for less.',
-  },
 ];
 
 const ProductCard = ({ product }: { product: ProductWithRelations }) => {
@@ -202,26 +183,6 @@ export default async function Home() {
                   Shop All Products <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-            </div>
-          </div>
-        </section>
-        
-        {/* Why Shop With Us */}
-        <section className="py-16 bg-background">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center font-headline mb-12">
-              Why Shop With Us
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {trustPoints.map((point) => (
-                <div key={point.title} className="text-center">
-                   <Avatar className="mx-auto h-16 w-16 bg-primary text-primary-foreground mb-4">
-                     <AvatarFallback className="bg-transparent"><Heart/></AvatarFallback>
-                   </Avatar>
-                  <h3 className="text-xl font-headline font-semibold">{point.title}</h3>
-                  <p className="text-muted-foreground mt-2">{point.description}</p>
-                </div>
-              ))}
             </div>
           </div>
         </section>
