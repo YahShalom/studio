@@ -27,7 +27,8 @@ async function getProduct(slug: string): Promise<ProductWithRelations | null> {
     .eq('slug', slug)
     .single();
 
-  if (error || !product) {
+  if (error) {
+    console.error('Error fetching product:', error);
     return null;
   }
   return product;
@@ -45,7 +46,7 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
   }
 
   const placeholder = PlaceHolderImages.find(p => p.id === 'product-placeholder') || { imageUrl: 'https://picsum.photos/seed/1/600/800', imageHint: 'fashion product' };
-  const media = product.product_media && product.product_media.length > 0 ? product.product_media : [{ id: 'placeholder', url: placeholder.imageUrl, type: 'image' }];
+  const media = product.product_media && product.product_media.length > 0 ? product.product_media : [{ id: 'placeholder', url: placeholder.imageUrl, type: 'image' as const }];
 
   return (
     <div className="flex flex-col min-h-screen">

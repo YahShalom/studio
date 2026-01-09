@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type {
@@ -43,6 +43,11 @@ function Filters({
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  const activeCategory = useMemo(() => searchParams.get('category'), [searchParams]);
+  const onSale = useMemo(() => searchParams.get('on_sale') === 'true', [searchParams]);
+  const isNew = useMemo(() => searchParams.get('is_new') === 'true', [searchParams]);
+
+
   const handleCategoryChange = (slug: string) => {
     const newParams = new URLSearchParams(searchParams.toString());
     const currentCategory = newParams.get('category');
@@ -52,7 +57,7 @@ function Filters({
       newParams.set('category', slug);
     }
     newParams.delete('page');
-    router.push(`/products?${newParams.toString()}`);
+    router.push(`/products?${newParams.toString()}`, { scroll: false });
     onFilterChange?.();
   };
 
@@ -64,7 +69,7 @@ function Filters({
       newParams.set(name, 'true');
     }
     newParams.delete('page');
-    router.push(`/products?${newParams.toString()}`);
+    router.push(`/products?${newParams.toString()}`, { scroll: false });
     onFilterChange?.();
   };
 
@@ -86,7 +91,7 @@ function Filters({
                   <div key={cat.id} className="flex items-center space-x-2">
                     <Checkbox
                       id={`cat-${cat.slug}`}
-                      checked={searchParams.get('category') === cat.slug}
+                      checked={activeCategory === cat.slug}
                       onCheckedChange={() => handleCategoryChange(cat.slug)}
                     />
                     <Label
@@ -107,7 +112,7 @@ function Filters({
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="on_sale"
-                    checked={searchParams.get('on_sale') === 'true'}
+                    checked={onSale}
                     onCheckedChange={() => handleCheckboxChange('on_sale')}
                   />
                   <Label htmlFor="on_sale" className="cursor-pointer">On Sale</Label>
@@ -115,7 +120,7 @@ function Filters({
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="is_new"
-                    checked={searchParams.get('is_new') === 'true'}
+                    checked={isNew}
                     onCheckedChange={() => handleCheckboxChange('is_new')}
                   />
                   <Label htmlFor="is_new" className="cursor-pointer">New Arrivals</Label>
@@ -154,15 +159,17 @@ function SortSelect() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
+    const activeSort = useMemo(() => searchParams.get('sort') || 'newest', [searchParams]);
+
     const handleSortChange = (value: string) => {
         const newParams = new URLSearchParams(searchParams.toString());
         newParams.set('sort', value);
         newParams.delete('page');
-        router.push(`/products?${newParams.toString()}`);
+        router.push(`/products?${newParams.toString()}`, { scroll: false });
     };
 
     return (
-        <Select onValueChange={handleSortChange} defaultValue={searchParams.get('sort') || 'newest'}>
+        <Select onValueChange={handleSortChange} defaultValue={activeSort}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>

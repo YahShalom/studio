@@ -32,13 +32,15 @@ export function QuickViewModal({ product, children }: { product: ProductWithRela
         const fetchSettings = async () => {
             const supabase = createClient();
             const { data } = await supabase.from('site_settings').select('*').single();
-            setSettings(data);
+            if (data) {
+                setSettings(data);
+            }
         };
         fetchSettings();
     }, []);
     
     const placeholder = PlaceHolderImages.find(p => p.id === 'product-placeholder') || { imageUrl: 'https://picsum.photos/seed/1/600/800', imageHint: 'fashion product' };
-    const media = product.product_media && product.product_media.length > 0 ? product.product_media : [{ id: 'placeholder', url: placeholder.imageUrl, type: 'image' }];
+    const media = product.product_media && product.product_media.length > 0 ? product.product_media : [{ id: 'placeholder', url: placeholder.imageUrl, type: 'image' as const }];
 
   return (
     <Dialog>
@@ -116,8 +118,8 @@ export function QuickViewModal({ product, children }: { product: ProductWithRela
                 </div>
                 
                 <div className="flex flex-col gap-3 pt-4 border-t">
-                    <Button asChild size="lg" className="w-full font-semibold">
-                        <a href={`https://wa.me/${settings?.whatsapp_number}?text=Hi! I'm interested in the ${product.name}.`} target="_blank" rel="noopener noreferrer">
+                    <Button asChild size="lg" className="w-full font-semibold" disabled={!settings}>
+                        <a href={settings ? `https://wa.me/${settings.whatsapp_number}?text=Hi! I'm interested in the ${product.name}.` : '#'} target="_blank" rel="noopener noreferrer">
                             <MessageCircle className="mr-2 h-5 w-5" /> Message on WhatsApp
                         </a>
                     </Button>

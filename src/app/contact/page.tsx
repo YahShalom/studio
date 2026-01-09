@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
+import { revalidatePath } from 'next/cache';
 
 export default async function ContactPage() {
   const supabase = createClient();
@@ -42,6 +43,35 @@ export default async function ContactPage() {
   };
   
   const finalSettings = settings || defaultSettings;
+
+  async function handleContactSubmit(formData: FormData) {
+    'use server';
+
+    const name = formData.get('name') as string;
+    const contact = formData.get('contact') as string;
+    const message = formData.get('message') as string;
+    
+    if (!name || !contact || !message) {
+        // Handle error: fields are missing
+        console.error('Missing form fields');
+        return;
+    }
+
+    const supabase = createClient();
+    const { error } = await supabase.from('inquiries').insert({
+      name,
+      contact,
+      message,
+    });
+
+    if (error) {
+      console.error('Error submitting inquiry:', error);
+      // Handle submission error, maybe show a toast
+    } else {
+      // Potentially show a success message
+      revalidatePath('/contact');
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -85,20 +115,20 @@ export default async function ContactPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-4">
+              <form action={handleContactSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label htmlFor="name" className="text-sm font-medium">Name</label>
-                    <Input id="name" placeholder="Your Name" />
+                    <Input id="name" name="name" placeholder="Your Name" required />
                   </div>
                   <div className="space-y-2">
                     <label htmlFor="contact" className="text-sm font-medium">Email or Phone</label>
-                    <Input id="contact" placeholder="you@example.com" />
+                    <Input id="contact" name="contact" placeholder="you@example.com" required />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="message" className="text-sm font-medium">Message</label>
-                  <Textarea id="message" placeholder="Your message..." rows={5} />
+                  <Textarea id="message" name="message" placeholder="Your message..." rows={5} required />
                 </div>
                 <div className="text-right">
                   <Button type="submit">Send Message</Button>

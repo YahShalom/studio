@@ -93,14 +93,15 @@ export function ProductGrid() {
                     }}
                 >
                     {products.map((product, index) => {
+                        const card = <ProductCard product={product} />;
                         if (products.length === index + 1) {
                             return (
                                 <div ref={lastProductElementRef} key={product.id}>
-                                    <ProductCard product={product} />
+                                    {card}
                                 </div>
                             );
                         }
-                        return <ProductCard key={product.id} product={product} />;
+                        return <div key={product.id}>{card}</div>;
                     })}
                 </MotionDiv>
             </AnimatePresence>
