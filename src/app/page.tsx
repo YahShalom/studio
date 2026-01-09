@@ -12,7 +12,6 @@ import {
   Heart,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -25,6 +24,7 @@ import PublicHeader from '@/components/layout/public-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MotionDiv } from '@/components/motion-div';
 import { ProductCard } from '@/components/product-card';
+import HeroSlider from '@/components/hero-slider';
 
 const PublicFooter = dynamic(() => import('@/components/layout/public-footer'));
 
@@ -43,47 +43,6 @@ const variants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
-const HeroSection = ({ settings }: { settings: SiteSettings }) => {
-  const heroImage = PlaceHolderImages.find(p => p.id === 'hero-image') || { imageUrl: 'https://picsum.photos/seed/hero/1200/800', imageHint: 'fashion model' };
-
-  return (
-    <section className="relative h-[60vh] md:h-[70vh] w-full text-white flex items-center">
-      <div className="absolute inset-0 bg-black/50 z-10" />
-      <Image
-        src={heroImage.imageUrl}
-        alt="Fashion model"
-        fill
-        className="object-cover"
-        priority
-        data-ai-hint={heroImage.imageHint}
-      />
-      <MotionDiv
-        className="relative z-20 container mx-auto px-4 text-center"
-        initial="hidden"
-        animate="visible"
-        variants={variants}
-      >
-        <h1 className="text-4xl md:text-6xl font-extrabold font-headline text-shadow-lg">
-          {settings.site_name}
-        </h1>
-        <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-shadow">
-          {settings.tagline}
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Button asChild size="lg" className="font-bold">
-            <Link href="/#trending">
-              Shop New Arrivals
-            </Link>
-          </Button>
-          <Button asChild size="lg" variant="secondary" className="font-bold">
-            <a href={`https://wa.me/${settings.whatsapp_number}`} target="_blank" rel="noopener noreferrer">Message Us</a>
-          </Button>
-        </div>
-      </MotionDiv>
-    </section>
-  );
-};
-
 const CategoryChipsSection = () => (
   <section className="py-8 bg-background">
     <MotionDiv 
@@ -95,7 +54,7 @@ const CategoryChipsSection = () => (
     >
       <div className="flex flex-wrap justify-center gap-2 md:gap-3">
         {categoryChips.map((cat) => (
-          <Button key={cat.name} asChild variant="outline" className="rounded-full">
+          <Button key={cat.name} asChild variant="outline" className="rounded-full transition-all hover:shadow-lg hover:-translate-y-0.5 hover:bg-accent/50">
             <Link href={cat.href}>{cat.name}</Link>
           </Button>
         ))}
@@ -322,7 +281,7 @@ export default async function Home() {
       <PublicHeader settings={finalSettings} />
       <main className="flex-grow">
         <Suspense fallback={<HeroSkeleton />}>
-          <HeroSection settings={finalSettings} />
+          <HeroSlider settings={finalSettings} />
         </Suspense>
 
         <Suspense fallback={<ChipsSkeleton />}>

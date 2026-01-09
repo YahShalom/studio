@@ -1,3 +1,4 @@
+
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -13,6 +14,7 @@ import { Logo } from '@/components/icons';
 import { SiteSettings } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
+import { AnnouncementBanner } from '../announcement-banner';
 
 const navLinks = [
   { name: 'Home', href: '/' },
@@ -28,6 +30,7 @@ export default function PublicHeader({ settings }: { settings: SiteSettings }) {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
+      <AnnouncementBanner />
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2">
           <Logo className="h-7 w-7 text-primary" />

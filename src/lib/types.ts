@@ -1,3 +1,4 @@
+
 export type Json =
   | string
   | number
@@ -344,3 +345,34 @@ export type ProductWithRelations = Product & {
 };
 
 export type UserRole = Database['public']['Enums']['user_role'];
+
+// Configuration types
+export type AnnouncementMessage = {
+  text: string;
+  href: string;
+};
+
+export type AnnouncementConfig = {
+  rotateInterval: number;
+  messages: AnnouncementMessage[];
+};
+
+export type HeroCTA = {
+  label: string;
+  href: string;
+};
+
+export type HeroSlide = {
+  title: string;
+  subtitle: string;
+  categoryName: string;
+  imageUrl: string;
+  imageHint: string;
+  primaryCta: HeroCTA;
+  secondaryCta: HeroCTA;
+};
+
+export type HeroSliderConfig = {
+  rotateInterval: number;
+  slides: HeroSlide[];
+};
