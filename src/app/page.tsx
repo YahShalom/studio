@@ -71,7 +71,7 @@ const TrendingSection = async () => {
       .from('products')
       .select('*, product_media(*)')
       .eq('featured', true)
-      .limit(8);
+      .limit(12);
       
     if (error) throw error;
     trendingProducts = productsData || [];
@@ -229,7 +229,7 @@ const TrendingSkeleton = () => (
    <div className="container mx-auto px-4 py-16">
       <Skeleton className="h-8 w-64 mx-auto mb-8" />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {Array.from({ length: 8 }).map((_, i) => (
+        {Array.from({ length: 12 }).map((_, i) => (
           <div key={i} className="space-y-2">
             <Skeleton className="aspect-[3/4]" />
             <Skeleton className="h-5 w-3/4" />
@@ -307,3 +307,5 @@ export default async function Home() {
     </div>
   );
 }
+
+    

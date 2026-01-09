@@ -17,7 +17,11 @@ export const heroSliderConfig: HeroSliderConfig = {
       title: "Step into Style",
       subtitle: "Discover statement heels that elevate any look, from brunch to night out.",
       categoryName: "Heels",
-      imageUrl: "https://images.unsplash.com/photo-1590099033615-77535a093392?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmYXNoaW9uJTIwaGVlbHN8ZW58MHx8fHwxNzE4MzA3NjMxfDA&ixlib=rb-4.0.3&q=80&w=1920",
+      imageUrl: [
+        "https://images.unsplash.com/photo-1590099033615-77535a093392?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmYXNoaW9uJTIwaGVlbHN8ZW58MHx8fHwxNzE4MzA3NjMxfDA&ixlib=rb-4.0.3&q=80&w=1920",
+        "https://images.unsplash.com/photo-1538330627588-2208d087a8b2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmYXNoaW9uJTIwaGVlbHN8ZW58MHx8fHwxNzE4MzA3NjMxfDA&ixlib=rb-4.0.3&q=80&w=1920",
+        "https://images.unsplash.com/photo-1605346435434-5f1591f88764?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxmYXNoaW9uJTIwaGVlbHN8ZW58MHx8fHwxNzE4MzA3NjMxfDA&ixlib=rb-4.0.3&q=80&w=1920",
+      ],
       imageHint: "fashion heels",
       primaryCta: { label: "Shop Heels", href: "/products?category=heels" },
       secondaryCta: { label: "View All", href: "/products" },
@@ -44,7 +48,10 @@ export const heroSliderConfig: HeroSliderConfig = {
       title: "Fresh Kicks",
       subtitle: "Upgrade your sneaker game with the latest drops and timeless classics.",
       categoryName: "Sneakers",
-      imageUrl: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmYXNoaW9uJTIwc25lYWtlcnN8ZW58MHx8fHwxNzE4MzA3NzM0fDA&ixlib=rb-4.0.3&q=80&w=1920",
+      imageUrl: [
+        "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmYXNoaW9uJTIwc25lYWtlcnN8ZW58MHx8fHwxNzE4MzA3NzM0fDA&ixlib=rb-4.0.3&q=80&w=1920",
+        "https://images.unsplash.com/photo-1600269452121-4f2416e55c28?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmYXNoaW9uJTIwc25lYWtlcnN8ZW58MHx8fHwxNzE4MzA3NzM0fDA&ixlib=rb-4.0.3&q=80&w=1920",
+      ],
       imageHint: "fashion sneakers",
       primaryCta: { label: "Shop Sneakers", href: "/products?category=sneakers" },
       secondaryCta: { label: "View All", href: "/products" },
@@ -64,3 +71,5 @@ export const heroSliderConfig: HeroSliderConfig = {
     }
   ]
 };
+
+    
