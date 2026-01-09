@@ -1,180 +1,172 @@
--- 0000_initial_schema.sql
+-- Initial Schema for Exclusive Fashions Ltd
 
 -- 1. Extensions
--- No new extensions needed for this schema.
+create extension if not exists "uuid-ossp" with schema "extensions";
 
 -- 2. Enums
-CREATE TYPE public.media_type AS ENUM ('image', 'video');
-CREATE TYPE public.user_role AS ENUM ('staff', 'owner');
+create type "public"."media_type" as enum ('image', 'video');
+create type "public"."user_role" as enum ('staff', 'owner');
+
 
 -- 3. Tables
-
--- Profiles table to store user roles
-CREATE TABLE public.profiles (
-    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-    role public.user_role NOT NULL DEFAULT 'staff'
+create table "public"."categories" (
+    "id" uuid not null default uuid_generate_v4(),
+    "created_at" timestamp with time zone not null default now(),
+    "name" text not null,
+    "slug" text not null,
+    "sort_order" smallint
 );
-COMMENT ON TABLE public.profiles IS 'Stores user-specific data like roles.';
+alter table "public"."categories" enable row level security;
+CREATE UNIQUE INDEX categories_pkey ON public.categories USING btree (id);
+CREATE UNIQUE INDEX categories_slug_key ON public.categories USING btree (slug);
+alter table "public"."categories" add constraint "categories_pkey" PRIMARY KEY using index "categories_pkey";
+alter table "public"."categories" add constraint "categories_slug_key" UNIQUE using index "categories_slug_key";
 
--- Categories table
-CREATE TABLE public.categories (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL,
-    slug TEXT NOT NULL UNIQUE,
-    sort_order INT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+
+create table "public"."inquiries" (
+    "id" uuid not null default uuid_generate_v4(),
+    "created_at" timestamp with time zone not null default now(),
+    "name" text not null,
+    "contact" text not null,
+    "message" text not null
 );
-COMMENT ON TABLE public.categories IS 'Stores product categories.';
+alter table "public"."inquiries" enable row level security;
+CREATE UNIQUE INDEX inquiries_pkey ON public.inquiries USING btree (id);
+alter table "public"."inquiries" add constraint "inquiries_pkey" PRIMARY KEY using index "inquiries_pkey";
 
--- Products table
-CREATE TABLE public.products (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL,
-    slug TEXT NOT NULL UNIQUE,
-    description TEXT,
-    price_ttd NUMERIC(10, 2) NOT NULL,
-    category_id UUID NOT NULL REFERENCES public.categories(id),
-    tags TEXT[],
-    colors TEXT[],
-    sizes TEXT[],
-    featured BOOLEAN NOT NULL DEFAULT false,
-    is_new BOOLEAN NOT NULL DEFAULT true,
-    on_sale BOOLEAN NOT NULL DEFAULT false,
-    in_stock BOOLEAN NOT NULL DEFAULT true,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+
+create table "public"."product_media" (
+    "id" uuid not null default uuid_generate_v4(),
+    "created_at" timestamp with time zone not null default now(),
+    "product_id" uuid not null,
+    "type" public.media_type not null,
+    "url" text not null,
+    "sort_order" smallint not null default '0'::smallint
 );
-COMMENT ON TABLE public.products IS 'Stores individual product details.';
-CREATE INDEX idx_products_category_id ON public.products(category_id);
-CREATE INDEX idx_products_featured ON public.products(featured);
+alter table "public"."product_media" enable row level security;
+CREATE UNIQUE INDEX product_media_pkey ON public.product_media USING btree (id);
+alter table "public"."product_media" add constraint "product_media_pkey" PRIMARY KEY using index "product_media_pkey";
+alter table "public"."product_media" add constraint "product_media_product_id_fkey" FOREIGN KEY (product_id) REFERENCES products(id) ON UPDATE CASCADE ON DELETE CASCADE not valid;
+alter table "public"."product_media" validate constraint "product_media_product_id_fkey";
 
--- Product Media table
-CREATE TABLE public.product_media (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
-    type public.media_type NOT NULL,
-    url TEXT NOT NULL,
-    sort_order INT NOT NULL DEFAULT 0,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+
+create table "public"."products" (
+    "id" uuid not null default uuid_generate_v4(),
+    "created_at" timestamp with time zone not null default now(),
+    "name" text not null,
+    "slug" text not null,
+    "description" text,
+    "price_ttd" numeric not null,
+    "category_id" uuid not null,
+    "is_new" boolean not null default false,
+    "on_sale" boolean not null default false,
+    "in_stock" boolean not null default true,
+    "featured" boolean not null default false,
+    "tags" text[],
+    "sizes" text[],
+    "colors" text[]
 );
-COMMENT ON TABLE public.product_media IS 'Stores image and video URLs for products.';
-CREATE INDEX idx_product_media_product_id ON public.product_media(product_id);
+alter table "public"."products" enable row level security;
+CREATE UNIQUE INDEX products_pkey ON public.products USING btree (id);
+CREATE UNIQUE INDEX products_slug_key ON public.products USING btree (slug);
+alter table "public"."products" add constraint "products_pkey" PRIMARY KEY using index "products_pkey";
+alter table "public"."products" add constraint "products_slug_key" UNIQUE using index "products_slug_key";
+alter table "public"."products" add constraint "products_category_id_fkey" FOREIGN KEY (category_id) REFERENCES categories(id) ON UPDATE CASCADE ON DELETE RESTRICT not valid;
+alter table "public"."products" validate constraint "products_category_id_fkey";
 
--- Inquiries table (from contact form)
-CREATE TABLE public.inquiries (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL,
-    contact TEXT NOT NULL,
-    message TEXT NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+
+create table "public"."profiles" (
+    "id" uuid not null,
+    "role" text not null default 'staff'::text
 );
-COMMENT ON TABLE public.inquiries IS 'Stores messages submitted through the contact form.';
+alter table "public"."profiles" enable row level security;
+CREATE UNIQUE INDEX profiles_pkey ON public.profiles USING btree (id);
+alter table "public"."profiles" add constraint "profiles_pkey" PRIMARY KEY using index "profiles_pkey";
+alter table "public"."profiles" add constraint "profiles_id_fkey" FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE not valid;
+alter table "public"."profiles" validate constraint "profiles_id_fkey";
 
--- Site Settings table (singleton)
-CREATE TABLE public.site_settings (
-    id INT PRIMARY KEY DEFAULT 1,
-    site_name TEXT NOT NULL DEFAULT 'Exclusive Fashions Ltd',
-    tagline TEXT NOT NULL DEFAULT 'Your one-stop shop for trendy footwear, bags, and accessories.',
-    location_1_name TEXT NOT NULL DEFAULT 'High Street Branch',
-    location_1_address TEXT NOT NULL DEFAULT '116–118 High Street, San Fernando, Trinidad',
-    location_1_gmaps_url TEXT NOT NULL DEFAULT 'https://maps.google.com',
-    location_2_name TEXT NOT NULL DEFAULT 'Carlton Centre Branch',
-    location_2_address TEXT NOT NULL DEFAULT 'Carlton Centre, 61 St. James Street, San Fernando, Trinidad',
-    location_2_gmaps_url TEXT NOT NULL DEFAULT 'https://maps.google.com',
-    phone_number TEXT NOT NULL DEFAULT '1-868-123-4567',
-    whatsapp_number TEXT NOT NULL DEFAULT '18681234567',
-    instagram_handle TEXT NOT NULL DEFAULT 'exclusive_fashion_ltd_',
-    opening_hours TEXT NOT NULL DEFAULT 'Mon - Sat: 9am - 5pm',
-    announcement_banner TEXT,
-    payments_enabled BOOLEAN NOT NULL DEFAULT false,
-    CONSTRAINT singleton_check CHECK (id = 1)
+
+create table "public"."site_settings" (
+    "id" integer not null,
+    "site_name" text not null default 'Exclusive Fashions Ltd'::text,
+    "tagline" text not null default 'Your one-stop shop for trendy footwear, bags, and accessories.'::text,
+    "location_1_name" text not null default 'High Street Branch'::text,
+    "location_1_address" text not null default '116–118 High Street, San Fernando, Trinidad'::text,
+    "location_1_gmaps_url" text not null default 'https://maps.google.com'::text,
+    "location_2_name" text not null default 'Carlton Centre Branch'::text,
+    "location_2_address" text not null default 'Carlton Centre, 61 St. James Street, San Fernando, Trinidad'::text,
+    "location_2_gmaps_url" text not null default 'https://maps.google.com'::text,
+    "phone_number" text not null default '1-868-123-4567'::text,
+    "whatsapp_number" text not null default '18681234567'::text,
+    "instagram_handle" text not null default 'exclusive_fashion_ltd_'::text,
+    "opening_hours" text not null default 'Mon - Sat: 9am - 5pm'::text,
+    "announcement_banner" text,
+    "payments_enabled" boolean not null default false
 );
-COMMENT ON TABLE public.site_settings IS 'Stores global site configuration as a single row.';
+alter table "public"."site_settings" enable row level security;
+CREATE UNIQUE INDEX site_settings_pkey ON public.site_settings USING btree (id);
+alter table "public"."site_settings" add constraint "site_settings_pkey" PRIMARY KEY using index "site_settings_pkey";
+alter table "public"."site_settings" add constraint "site_settings_id_check" CHECK ((id = 1)) not valid;
+alter table "public"."site_settings" validate constraint "site_settings_id_check";
 
--- 4. Helper Functions and Triggers
-
--- Function to create a profile when a new user signs up
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO public.profiles (id, role)
-  VALUES (new.id, 'staff');
-  RETURN new;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Trigger to call the function on new user creation
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
-
--- Function to get a user's role
-CREATE OR REPLACE FUNCTION public.get_user_role(user_id UUID)
-RETURNS public.user_role AS $$
-DECLARE
-  user_role public.user_role;
-BEGIN
-  SELECT role INTO user_role FROM public.profiles WHERE id = user_id;
-  RETURN user_role;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- Insert initial settings
+insert into public.site_settings (id) values (1);
 
 
--- 5. Row Level Security (RLS)
+-- 4. Functions
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  insert into public.profiles (id)
+  values (new.id);
+  return new;
+end;
+$$;
 
--- Enable RLS for all relevant tables
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.product_media ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.inquiries ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+create or replace function public.get_user_role(user_id uuid)
+returns text
+language plpgsql
+as $$
+declare
+  user_role text;
+begin
+  select role into user_role from public.profiles where id = user_id;
+  return user_role;
+end;
+$$;
 
--- RLS Policies for `profiles`
-CREATE POLICY "Users can view their own profile" ON public.profiles
-  FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "Admins can view all profiles" ON public.profiles
-  FOR SELECT USING (get_user_role(auth.uid()) IN ('staff', 'owner'));
-CREATE POLICY "Owners can update any profile role" ON public.profiles
-  FOR UPDATE USING (get_user_role(auth.uid()) = 'owner') WITH CHECK (get_user_role(auth.uid()) = 'owner');
 
--- RLS Policies for `categories`, `products`, `product_media`
--- Public read access
-CREATE POLICY "Public can read all categories" ON public.categories FOR SELECT USING (true);
-CREATE POLICY "Public can read all products" ON public.products FOR SELECT USING (true);
-CREATE POLICY "Public can read all product media" ON public.product_media FOR SELECT USING (true);
--- Admin write access
-CREATE POLICY "Admins can manage categories" ON public.categories FOR ALL
-  USING (get_user_role(auth.uid()) IN ('staff', 'owner'));
-CREATE POLICY "Admins can manage products" ON public.products FOR ALL
-  USING (get_user_role(auth.uid()) IN ('staff', 'owner'));
-CREATE POLICY "Admins can manage product media" ON public.product_media FOR ALL
-  USING (get_user_role(auth.uid()) IN ('staff', 'owner'));
+-- 5. Triggers
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
 
--- RLS Policies for `inquiries`
-CREATE POLICY "Anyone can submit an inquiry" ON public.inquiries FOR INSERT WITH CHECK (true);
-CREATE POLICY "Admins can view all inquiries" ON public.inquiries FOR SELECT
-  USING (get_user_role(auth.uid()) IN ('staff', 'owner'));
-CREATE POLICY "Admins can delete inquiries" ON public.inquiries FOR DELETE
-  USING (get_user_role(auth.uid()) IN ('staff', 'owner'));
 
--- RLS Policies for `site_settings`
-CREATE POLICY "Public can read site settings" ON public.site_settings FOR SELECT USING (true);
-CREATE POLICY "Owners can update site settings" ON public.site_settings FOR UPDATE
-  USING (get_user_role(auth.uid()) = 'owner');
+-- 6. RLS Policies
+-- PROFILES
+create policy "Allow individual read access" on public.profiles for select using (auth.uid() = id);
+create policy "Allow individual update access" on public.profiles for update using (auth.uid() = id);
+create policy "Allow owner full access" on public.profiles for all using ((get_user_role(auth.uid()) = 'owner'::text));
 
--- 6. Seed Data
+-- CATEGORIES
+create policy "Allow public read access" on public.categories for select using (true);
+create policy "Allow owner full access" on public.categories for all using ((get_user_role(auth.uid()) = 'owner'::text));
 
--- Insert default site settings
-INSERT INTO public.site_settings (id) VALUES (1);
+-- PRODUCTS
+create policy "Allow public read access" on public.products for select using (true);
+create policy "Allow owner full access" on public.products for all using ((get_user_role(auth.uid()) = 'owner'::text));
 
--- Insert categories
-INSERT INTO public.categories (name, slug, sort_order) VALUES
-('Heels', 'heels', 1),
-('Sandals', 'sandals', 2),
-('Sneakers', 'sneakers', 3),
-('Bags', 'bags', 4),
-('Accessories', 'accessories', 5);
+-- PRODUCT MEDIA
+create policy "Allow public read access" on public.product_media for select using (true);
+create policy "Allow owner full access" on public.product_media for all using ((get_user_role(auth.uid()) = 'owner'::text));
 
--- Note: Seed data for products is extensive and will be handled by the application logic
--- or a separate seeding script to keep this schema file clean.
--- The user can add products via the admin panel.
+-- INQUIRIES
+create policy "Allow all to insert" on public.inquiries for insert with check (true);
+create policy "Allow owner full access" on public.inquiries for all using ((get_user_role(auth.uid()) = 'owner'::text));
+
+-- SITE SETTINGS
+create policy "Allow public read access" on public.site_settings for select using (true);
+create policy "Allow owner full access" on public.site_settings for all using ((get_user_role(auth.uid()) = 'owner'::text));
