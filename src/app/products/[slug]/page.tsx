@@ -146,7 +146,7 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
              <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                     <Tag className="h-5 w-5 text-primary"/>
-                    <span>Authentic &amp; Trendy Styles</span>
+                    <span>Authentic & Trendy Styles</span>
                 </div>
                 <div className="flex items-center gap-2">
                     <Truck className="h-5 w-5 text-primary"/>

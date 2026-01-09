@@ -214,7 +214,7 @@ const StoreInfoSection = ({ settings }: { settings: SiteSettings }) => {
 
 
 const HeroSkeleton = () => (
-  <Skeleton className="h-[60vh] md:h-[70vh] w-full" />
+  <Skeleton className="h-[65vh] md:h-[75vh] w-full" />
 );
 const ChipsSkeleton = () => (
   <div className="container mx-auto px-4 py-8">

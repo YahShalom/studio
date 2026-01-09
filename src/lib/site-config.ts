@@ -53,7 +53,7 @@ export const heroSliderConfig: HeroSliderConfig = {
       title: "Finishing Touches",
       subtitle: "Complete your look with our curated collection of must-have accessories.",
       categoryName: "Accessories",
-      imageUrl: "https://images.unsplash.com/photo-1619948544722-b131a153284b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmYXNoaW9uJTIwYWNjZXNzb3JpZXN8ZW58MHx8fHwxNzE4MzA3NzYwfDA&ixlib=rb-4.0.3&q=80&w=1920",
+      imageUrl: "https://images.unsplash.com/photo-1619948544722-b131a7d7/photo.jpg?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmYXNoaW9uJTIwYWNjZXNzb3JpZXN8ZW58MHx8fHwxNzE4MzA3NzYwfDA&ixlib=rb-4.0.3&q=80&w=1920",
       imageHint: "fashion accessories",
       primaryCta: { label: "Shop Accessories", href: "/products?category=accessories" },
       secondaryCta: { label: "View All", href: "/products" },
