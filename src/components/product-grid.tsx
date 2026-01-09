@@ -31,10 +31,10 @@ export function ProductGrid() {
     const [loadingMore, setLoadingMore] = useState(false);
     const observer = useRef<IntersectionObserver>();
 
-    const category = searchParams.get('category');
-    const on_sale = searchParams.get('on_sale');
-    const is_new = searchParams.get('is_new');
-    const sort = searchParams.get('sort');
+    const category = searchParams.get('category') || undefined;
+    const on_sale = searchParams.get('on_sale') || undefined;
+    const is_new = searchParams.get('is_new') || undefined;
+    const sort = searchParams.get('sort') || undefined;
 
     const resetAndLoadProducts = useCallback(async () => {
         setLoading(true);
